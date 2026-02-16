@@ -4,7 +4,7 @@ type Request interface {
 	Name() string
 }
 
-type Response interface{}
+type Response any
 
 type RequestHandler interface {
 	Handle(req Request) (Response, error)

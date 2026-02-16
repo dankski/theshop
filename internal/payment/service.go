@@ -7,9 +7,7 @@ import (
 
 type Service struct{}
 
-func New() *Service {
-	return &Service{}
-}
+func New() *Service { return &Service{} }
 
 func (s *Service) Handle(req mediator.Request) (mediator.Response, error) {
 	cmd := req.(messages.ProcessPayment)

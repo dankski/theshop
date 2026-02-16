@@ -6,6 +6,6 @@ type OrderResult struct {
 }
 
 type PaymentResult struct {
-	OrderID string
-	Success bool
+	OrderID string `json:"order_id"`
+	Success bool   `json:"success"`
 }

@@ -1,8 +1,8 @@
 package messages
 
 type OrderResult struct {
-	OrderID string
-	Success bool
+	OrderID string `json:"order_id"`
+	Success bool   `json:"success"`
 }
 
 type PaymentResult struct {

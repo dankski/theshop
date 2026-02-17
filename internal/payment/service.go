@@ -1,17 +1,12 @@
 package payment
 
 import (
-	"theshop/internal/mediator"
 	"theshop/internal/messages"
 )
 
-type Service struct{}
+type PaymentService struct{}
 
-func New() *Service { return &Service{} }
-
-func (s *Service) Handle(req mediator.Request) (mediator.Response, error) {
-	cmd := req.(messages.ProcessPayment)
-
+func (p *PaymentService) Handle(cmd messages.ProcessPayment) (messages.PaymentResult, error) {
 	return messages.PaymentResult{
 		OrderID: cmd.OrderID,
 		Success: true,

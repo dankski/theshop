@@ -5,30 +5,28 @@ import (
 	"theshop/internal/messages"
 )
 
-type Service struct {
-	mediator mediator.Mediator
+type OrderService struct {
+	mediator *mediator.Mediator
 }
 
-func New(m mediator.Mediator) *Service {
-	return &Service{mediator: m}
+func NewOrderService(m *mediator.Mediator) *OrderService {
+	return &OrderService{mediator: m}
 }
 
-func (s *Service) Handle(req mediator.Request) (mediator.Response, error) {
-	cmd := req.(messages.PlaceOrder)
-
-	// call payment via mediator → cross-cutting orchestration
-	resp, err := s.mediator.Send(messages.ProcessPayment{
-		OrderID: cmd.OrderID,
-		Amount:  cmd.Amount,
-	})
+func (s *OrderService) Handle(cmd messages.PlaceOrder) (messages.OrderResult, error) {
+	paymentResult, err := mediator.Send[messages.ProcessPayment, messages.PaymentResult](
+		s.mediator,
+		messages.ProcessPayment{
+			OrderID: cmd.OrderID,
+			Amount:  cmd.Amount,
+		},
+	)
 	if err != nil {
-		return nil, err
+		return messages.OrderResult{}, err
 	}
-
-	payResult := resp.(messages.PaymentResult)
 
 	return messages.OrderResult{
 		OrderID: cmd.OrderID,
-		Success: payResult.Success,
+		Success: paymentResult.Success,
 	}, nil
 }

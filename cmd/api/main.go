@@ -2,27 +2,33 @@
 package main
 
 import (
-	"net/http"
+	"fmt"
 	"theshop/internal/mediator"
 	"theshop/internal/messages"
 	"theshop/internal/order"
 	"theshop/internal/payment"
-	httpTransport "theshop/internal/transport/http"
 )
 
 func main() {
 	m := mediator.New()
 
-	orderSvc := order.New(m)
-	paymentSvc := payment.New()
+	orderSvc := order.NewOrderService(m)
+	paymentSvc := &payment.PaymentService{}
 
-	// register handlers
-	m.Register(messages.PlaceOrder{}.Name(), orderSvc)
-	m.Register(messages.ProcessPayment{}.Name(), paymentSvc)
+	mediator.Register[messages.PlaceOrder, messages.OrderResult](m, orderSvc)
+	mediator.Register[messages.ProcessPayment, messages.PaymentResult](m, paymentSvc)
 
-	// REST layer
-	h := httpTransport.New(m)
+	result, err := mediator.Send[messages.PlaceOrder, messages.OrderResult](
+		m,
+		messages.PlaceOrder{
+			OrderID: "o123",
+			Amount:  99,
+		},
+	)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
 
-	http.HandleFunc("/orders", h.PlaceOrder)
-	http.ListenAndServe(":8080", nil)
+	fmt.Printf("%v", result)
 }
